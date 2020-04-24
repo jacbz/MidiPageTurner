@@ -8,7 +8,21 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-        <ListBox x:Name="midiInPortListBox" SelectionChanged="midiInPortListBox_SelectionChanged"/>
-    </Grid>
+    <StackPanel Padding="12">
+        <TextBlock Text="MIDI Input Device" />
+        <ListBox x:Name="MidiInListBox"/>
+        <Button x:Name="RefreshInputButton" Content="Refresh input devices" Click="RefreshInputButton_Click"/>
+        <TextBlock Text="MIDI Trigger" />
+        <ListBox x:Name="MidiTriggerListBox" SelectedIndex="0">
+            <ListBoxItem>Soft Pedal (Left)</ListBoxItem>
+            <ListBoxItem>Sostenuto Pedal (Middle)</ListBoxItem>
+        </ListBox>
+        <TextBlock Text="Page Turn Key" />
+        <ListBox x:Name="PageTurnKeyListBox" SelectedIndex="0">
+            <ListBoxItem>Right Arrow Key</ListBoxItem>
+            <ListBoxItem>Page Down</ListBoxItem>
+            <ListBoxItem>Space Bar</ListBoxItem>
+        </ListBox>
+        <Button x:Name="StartButton" Content="Start" Click="StartButton_Click"/>
+    </StackPanel>
 </Page>

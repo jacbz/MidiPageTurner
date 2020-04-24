@@ -9,7 +9,7 @@
 
   <Identity
     Name="dfc4dbc7-d31c-4a3e-8a56-9e62b7961209"
-    Publisher="CN=jacob"
+    Publisher="CN=Jacob Zhang"
     Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="dfc4dbc7-d31c-4a3e-8a56-9e62b7961209" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
