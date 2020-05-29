@@ -10,20 +10,15 @@
 
     <StackPanel Padding="12">
         <RelativePanel VerticalAlignment="Center">
-            <Rectangle Height="14" Width="14" RadiusX="7" RadiusY="7" Fill="{x:Bind IndicatorColor, Mode=OneWay}" HorizontalAlignment="Left" RelativePanel.AlignVerticalCenterWithPanel="True"/>
+            <Rectangle x:Name="Indicator" Height="14" Width="14" RadiusX="7" RadiusY="7" Fill="{x:Bind _inactiveBrush}" HorizontalAlignment="Left" RelativePanel.AlignVerticalCenterWithPanel="True"/>
             <TextBlock Text="MIDI Page Turner" FontSize="36" FontWeight="Light" RelativePanel.AlignHorizontalCenterWithPanel="True" Padding="0,0,0,4"/>
         </RelativePanel>
+
         <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
             <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xe772;" FontSize="14" VerticalAlignment="Center" Margin="0,2,4,0"/>
             <TextBlock>MIDI Input Devices</TextBlock>
         </StackPanel>
-        <ListBox x:Name="MidiInListBox" Height="120" SelectionChanged="MidiInListBox_SelectionChanged"/>
-        <Button x:Name="RefreshInputButton" Click="RefreshInputButton_Click" Margin="0,0,0,16" HorizontalAlignment="Stretch">
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xe72c;" FontSize="14" VerticalAlignment="Center" Margin="0,2,6,0"/>
-                <TextBlock>Refresh Input Devices</TextBlock>
-            </StackPanel>
-        </Button>
+        <ListBox x:Name="MidiInListBox" Height="120" SelectionChanged="MidiInListBox_SelectionChanged" Margin="0,0,0,16"/>
 
         <Grid Margin="0,0,0,16">
             <Grid.ColumnDefinitions>
@@ -87,6 +82,13 @@
             </StackPanel>
         </Grid>
 
-        <Button x:Name="StartButton" Content="Start" Click="StartButton_Click" HorizontalAlignment="Stretch" IsEnabled="False" Height="50" />
+        <Button x:Name="StartButton" Content="Start" Click="StartButton_Click" HorizontalAlignment="Stretch" IsEnabled="False" Height="50" Margin="0,0,0,16"/>
+
+        <ScrollViewer x:Name="LogScrollViewer" Height="80" BorderThickness="1" Padding="4">
+            <ScrollViewer.BorderBrush>
+                <SolidColorBrush Color="{ThemeResource SystemBaseLowColor}"/>
+            </ScrollViewer.BorderBrush>
+            <TextBlock x:Name="LogTextBox" FontSize="10"></TextBlock>
+        </ScrollViewer>
     </StackPanel>
 </Page>

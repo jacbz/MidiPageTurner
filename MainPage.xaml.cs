@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.System;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Input.Preview.Injection;
 using Windows.UI.Xaml.Media;
 
@@ -17,13 +18,14 @@ namespace MidiPageTurner
 {
     public sealed partial class MainPage : Page
     {
-        private readonly MidiDeviceWatcher _inputDeviceWatcher;
+        private string _deviceSelectorString;
+        public DeviceInformationCollection DeviceInformationCollection { get; set; }
         private MidiInPort _midiInPort;
-        private readonly InputInjector _inputInjector;
+        private string _currentDevice;
 
+        private readonly InputInjector _inputInjector;
         private readonly byte _triggerThreshold = 20;
         private readonly byte[] _midiTriggerOptions = { 67, 66, 64 };
-
         private readonly VirtualKey[][] _pageTurnKeyOptions1 =
             {new[] {VirtualKey.Space}, new[] {VirtualKey.Right}, new[] {VirtualKey.PageDown}};
 
@@ -34,21 +36,76 @@ namespace MidiPageTurner
         private VirtualKey[] _currentPageTurnKey1;
         private VirtualKey[] _currentPageTurnKey2;
 
-        private bool _isActive = false;
-
-        private SolidColorBrush IndicatorColor => _isActive
-            ? new SolidColorBrush(Color.FromArgb(255, 39, 174, 96))
-            : new SolidColorBrush(Color.FromArgb(255, 189, 195, 199));
+        private SolidColorBrush _activeBrush = new SolidColorBrush(Color.FromArgb(255, 39, 174, 96));
+        private SolidColorBrush _inactiveBrush = new SolidColorBrush(Color.FromArgb(255, 189, 195, 199));
         private DateTime _lastTriggerTime = DateTime.Now;
         private readonly TimeSpan _cooldown = TimeSpan.FromMilliseconds(750);
 
         public MainPage()
         {
             InitializeComponent();
+            InitDeviceWatcher();
             _inputInjector = InputInjector.TryCreate();
-            _inputDeviceWatcher = new MidiDeviceWatcher(MidiInPort.GetDeviceSelector(), MidiInListBox, Dispatcher);
-            _inputDeviceWatcher.UpdateDevices();
-            _inputDeviceWatcher.StartWatcher();
+        }
+
+        public void InitDeviceWatcher()
+        {
+            _deviceSelectorString = MidiInPort.GetDeviceSelector();
+
+            var deviceWatcher = DeviceInformation.CreateWatcher(_deviceSelectorString);
+            deviceWatcher.Added += async (sender, args) =>
+            {
+                Log("Device added");
+                await Dispatcher.RunAsync(CoreDispatcherPriority.High, UpdateDevices);
+            };
+
+            deviceWatcher.Removed += async (sender, args) =>
+            {
+                Log("Device removed");
+                if (args.Id == _currentDevice)
+                {
+                    Stop();
+                }
+                await Dispatcher.RunAsync(CoreDispatcherPriority.High, UpdateDevices);
+            };
+
+            deviceWatcher.Updated += async (sender, args) =>
+            {
+                Log("Device updated");
+                await Dispatcher.RunAsync(CoreDispatcherPriority.High, UpdateDevices);
+            };
+
+            deviceWatcher.EnumerationCompleted += async (sender, args) =>
+            {
+                Log("Device enumeration completed");
+                await Dispatcher.RunAsync(CoreDispatcherPriority.High, UpdateDevices);
+            };
+
+            Log("Starting DeviceWatcher...");
+            deviceWatcher.Start();
+        }
+
+        public async void UpdateDevices()
+        {
+            Log("Updating devices...");
+            DeviceInformationCollection = await DeviceInformation.FindAllAsync(_deviceSelectorString);
+
+            MidiInListBox.Items.Clear();
+
+            if (!DeviceInformationCollection.Any())
+            {
+                Log("No MIDI input devices found");
+                MidiInListBox.Items.Add("No MIDI input devices found!");
+                MidiInListBox.IsEnabled = false;
+                return;
+            }
+
+            foreach (var deviceInfo in DeviceInformationCollection)
+            {
+                Log($"Discovered MIDI Input {deviceInfo.Name}");
+                MidiInListBox.Items.Add(deviceInfo.Name);
+            }
+            MidiInListBox.IsEnabled = true;
         }
 
         private void MidiInPort_MessageReceived(MidiInPort sender, MidiMessageReceivedEventArgs args)
@@ -84,36 +141,59 @@ namespace MidiPageTurner
                 }});
             }
         }
-
         private async void StartButton_Click(object sender, RoutedEventArgs e)
         {
+            if (!string.IsNullOrEmpty(this._currentDevice))
+            {
+                Stop();
+            }
+
             _currentMidiTrigger1 = _midiTriggerOptions[MidiTriggerListBox1.SelectedIndex];
             _currentMidiTrigger2 = _midiTriggerOptions[MidiTriggerListBox2.SelectedIndex];
             _currentPageTurnKey1 = _pageTurnKeyOptions1[PageTurnKeyListBox1.SelectedIndex];
             _currentPageTurnKey2 = _pageTurnKeyOptions2[PageTurnKeyListBox2.SelectedIndex];
 
-            var deviceInformationCollection = _inputDeviceWatcher.DeviceInformationCollection;
+            var deviceInformationCollection = DeviceInformationCollection;
             var devInfo = deviceInformationCollection?[MidiInListBox.SelectedIndex];
             if (devInfo == null)
             {
+                Log("Error: DeviceInformationCollection was null");
                 return;
             }
             _midiInPort = await MidiInPort.FromIdAsync(devInfo.Id);
 
             if (_midiInPort == null)
             {
-                Debug.WriteLine("Unable to create MidiInPort from input device");
+                Log("Error: Unable to create MidiInPort from input device");
                 return;
             }
 
-            _isActive = true;
-            Bindings.Update();
-            _midiInPort.MessageReceived += MidiInPort_MessageReceived;
+            await Dispatcher.RunAsync(CoreDispatcherPriority.High, () =>
+            {
+                _midiInPort.MessageReceived += MidiInPort_MessageReceived;
+            });
+
+            Start(devInfo.Id);
         }
 
-        private void RefreshInputButton_Click(object sender, RoutedEventArgs e)
+        private async void Start(string id)
         {
-            _inputDeviceWatcher.UpdateDevices();
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                Log($"Subscribing to selected MIDI device");
+                _currentDevice = id;
+                Indicator.Fill = _activeBrush;
+            });
+        }
+
+        private async void Stop()
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                Log($"Subscribing from current MIDI device");
+                _currentDevice = null;
+                Indicator.Fill = _inactiveBrush;
+            });
         }
 
         private void MidiInListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -138,5 +218,15 @@ namespace MidiPageTurner
                     (MidiTriggerListBox1.SelectedIndex + 1) % MidiTriggerListBox1.Items.Count;
             }
         }
+
+        private async void Log(string text)
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                var time = $"({DateTime.Now:HH:mm:ss.ff})\t";
+                LogTextBox.Text = string.IsNullOrEmpty(LogTextBox.Text) ? time + text : LogTextBox.Text + "\n" + time + text;
+                LogScrollViewer.ChangeView(0.0f, double.MaxValue, 1.0f, true);
+            });
+        }   
     }
 }
