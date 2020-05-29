@@ -8,10 +8,12 @@ using Windows.Devices.Enumeration;
 using Windows.Devices.Midi;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.Data.Xml.Dom;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Input.Preview.Injection;
+using Windows.UI.Notifications;
 using Windows.UI.Xaml.Media;
 
 namespace MidiPageTurner
@@ -46,6 +48,7 @@ namespace MidiPageTurner
             InitializeComponent();
             InitDeviceWatcher();
             _inputInjector = InputInjector.TryCreate();
+            SetBadge("unavailable");
         }
 
         public void InitDeviceWatcher()
@@ -180,9 +183,10 @@ namespace MidiPageTurner
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Log($"Subscribing to selected MIDI device");
+                Log("Subscribing to selected MIDI device");
                 _currentDevice = id;
                 Indicator.Fill = _activeBrush;
+                SetBadge("available");
             });
         }
 
@@ -190,9 +194,10 @@ namespace MidiPageTurner
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Log($"Subscribing from current MIDI device");
+                Log("Subscribing from current MIDI device");
                 _currentDevice = null;
                 Indicator.Fill = _inactiveBrush;
+                SetBadge("unavailable");
             });
         }
 
@@ -227,6 +232,16 @@ namespace MidiPageTurner
                 LogTextBox.Text = string.IsNullOrEmpty(LogTextBox.Text) ? time + text : LogTextBox.Text + "\n" + time + text;
                 LogScrollViewer.ChangeView(0.0f, double.MaxValue, 1.0f, true);
             });
-        }   
+        }
+
+        private void SetBadge(string badgeGlyphValue)
+        {
+            var badgeXml = BadgeUpdateManager.GetTemplateContent(BadgeTemplateType.BadgeGlyph);
+            var badgeElement = badgeXml.SelectSingleNode("/badge") as XmlElement;
+            badgeElement.SetAttribute("value", badgeGlyphValue);
+            var badge = new BadgeNotification(badgeXml);
+            var badgeUpdater = BadgeUpdateManager.CreateBadgeUpdaterForApplication();
+            badgeUpdater.Update(badge);
+        }
     }
 }
