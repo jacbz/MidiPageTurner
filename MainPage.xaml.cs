@@ -1,11 +1,17 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Midi;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.System;
+using Windows.UI;
 using Windows.UI.Input.Preview.Injection;
+using Windows.UI.Xaml.Media;
 
 namespace MidiPageTurner
 {
@@ -16,11 +22,23 @@ namespace MidiPageTurner
         private readonly InputInjector _inputInjector;
 
         private readonly byte _triggerThreshold = 20;
-        private readonly byte[] _midiTriggerOptions = { 67, 66 };
-        private readonly VirtualKey[] _pageTurnKeyOptions = { VirtualKey.Right, VirtualKey.PageDown, VirtualKey.Space};
-        private byte _currentMidiTrigger;
-        private VirtualKey _currentPageTurnKey;
+        private readonly byte[] _midiTriggerOptions = { 67, 66, 64 };
 
+        private readonly VirtualKey[][] _pageTurnKeyOptions1 =
+            {new[] {VirtualKey.Space}, new[] {VirtualKey.Right}, new[] {VirtualKey.PageDown}};
+
+        private readonly VirtualKey[][] _pageTurnKeyOptions2 =
+            {new[] {VirtualKey.Shift, VirtualKey.Space}, new[] {VirtualKey.Left}, new[] {VirtualKey.PageUp}};
+        private byte _currentMidiTrigger1;
+        private byte _currentMidiTrigger2;
+        private VirtualKey[] _currentPageTurnKey1;
+        private VirtualKey[] _currentPageTurnKey2;
+
+        private bool _isActive = false;
+
+        private SolidColorBrush IndicatorColor => _isActive
+            ? new SolidColorBrush(Color.FromArgb(255, 39, 174, 96))
+            : new SolidColorBrush(Color.FromArgb(255, 189, 195, 199));
         private DateTime _lastTriggerTime = DateTime.Now;
         private readonly TimeSpan _cooldown = TimeSpan.FromMilliseconds(750);
 
@@ -28,59 +46,45 @@ namespace MidiPageTurner
         {
             InitializeComponent();
             _inputInjector = InputInjector.TryCreate();
-            _ = EnumerateMidiInputDevices();
             _inputDeviceWatcher = new MidiDeviceWatcher(MidiInPort.GetDeviceSelector(), MidiInListBox, Dispatcher);
-
+            _inputDeviceWatcher.UpdateDevices();
             _inputDeviceWatcher.StartWatcher();
         }
 
         private void MidiInPort_MessageReceived(MidiInPort sender, MidiMessageReceivedEventArgs args)
         {
             var receivedMidiMessage = args.Message;
+            if (DateTime.Now - _lastTriggerTime < _cooldown ||
+                !(receivedMidiMessage is MidiControlChangeMessage controlChangeMessage) ||
+                controlChangeMessage.ControlValue < _triggerThreshold ||
+                (controlChangeMessage.Controller != _currentMidiTrigger1 &&
+                controlChangeMessage.Controller != _currentMidiTrigger2)) return;
 
-            if (DateTime.Now - _lastTriggerTime < _cooldown) return;
-            if (receivedMidiMessage is MidiControlChangeMessage controlChangeMessage)
+            var pageTurnKey = controlChangeMessage.Controller == _currentMidiTrigger1
+                ? _currentPageTurnKey1
+                : _currentPageTurnKey2;
+
+            _lastTriggerTime = DateTime.Now;
+            var info = pageTurnKey.Select(key => new InjectedInputKeyboardInfo
             {
-                if (controlChangeMessage.Controller == _currentMidiTrigger && controlChangeMessage.ControlValue >= _triggerThreshold)
-                {
-                    _lastTriggerTime = DateTime.Now;
-                    var info = new InjectedInputKeyboardInfo
-                    {
-                        VirtualKey = (ushort)_currentPageTurnKey
-                    };
-                    _inputInjector.InjectKeyboardInput(new[] { info });
-                }
-            }
-        }
+                VirtualKey = (ushort) key
+            }).ToArray();
+            _inputInjector.InjectKeyboardInput(info);
 
-        private async Task EnumerateMidiInputDevices()
-        {
-            // Find all input MIDI devices
-            var midiInputQueryString = MidiInPort.GetDeviceSelector();
-            var midiInputDevices = await DeviceInformation.FindAllAsync(midiInputQueryString);
-
-            MidiInListBox.Items.Clear();
-
-            // Return if no external devices are connected
-            if (midiInputDevices.Count == 0)
+            // release keys again
+            foreach (var injectedInputKeyboardInfo in info)
             {
-                MidiInListBox.Items.Add("No MIDI input devices found!");
-                MidiInListBox.IsEnabled = false;
-                return;
+                injectedInputKeyboardInfo.KeyOptions = InjectedInputKeyOptions.KeyUp;
             }
-
-            // Else, add each connected input device to the list
-            foreach (var deviceInfo in midiInputDevices)
-            {
-                MidiInListBox.Items.Add(deviceInfo.Name);
-            }
-            MidiInListBox.IsEnabled = true;
+            _inputInjector.InjectKeyboardInput(info);
         }
 
         private async void StartButton_Click(object sender, RoutedEventArgs e)
         {
-            _currentMidiTrigger = _midiTriggerOptions[MidiTriggerListBox.SelectedIndex];
-            _currentPageTurnKey = _pageTurnKeyOptions[PageTurnKeyListBox.SelectedIndex];
+            _currentMidiTrigger1 = _midiTriggerOptions[MidiTriggerListBox1.SelectedIndex];
+            _currentMidiTrigger2 = _midiTriggerOptions[MidiTriggerListBox2.SelectedIndex];
+            _currentPageTurnKey1 = _pageTurnKeyOptions1[PageTurnKeyListBox1.SelectedIndex];
+            _currentPageTurnKey2 = _pageTurnKeyOptions2[PageTurnKeyListBox2.SelectedIndex];
 
             var deviceInformationCollection = _inputDeviceWatcher.DeviceInformationCollection;
             var devInfo = deviceInformationCollection?[MidiInListBox.SelectedIndex];
@@ -92,15 +96,41 @@ namespace MidiPageTurner
 
             if (_midiInPort == null)
             {
-                System.Diagnostics.Debug.WriteLine("Unable to create MidiInPort from input device");
+                Debug.WriteLine("Unable to create MidiInPort from input device");
                 return;
             }
+
+            _isActive = true;
+            Bindings.Update();
             _midiInPort.MessageReceived += MidiInPort_MessageReceived;
         }
 
-        private async void RefreshInputButton_Click(object sender, RoutedEventArgs e)
+        private void RefreshInputButton_Click(object sender, RoutedEventArgs e)
         {
-            await EnumerateMidiInputDevices();
+            _inputDeviceWatcher.UpdateDevices();
+        }
+
+        private void MidiInListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            StartButton.IsEnabled = MidiInListBox.SelectedIndex >= 0;
+        }
+
+        private void MidiTriggerListBox1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (MidiTriggerListBox2 != null && MidiTriggerListBox2.SelectedIndex == MidiTriggerListBox1.SelectedIndex)
+            {
+                MidiTriggerListBox2.SelectedIndex =
+                    (MidiTriggerListBox2.SelectedIndex + 1) % MidiTriggerListBox2.Items.Count;
+            }
+        }
+
+        private void MidiTriggerListBox2_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (MidiTriggerListBox1.SelectedIndex == MidiTriggerListBox2.SelectedIndex)
+            {
+                MidiTriggerListBox1.SelectedIndex =
+                    (MidiTriggerListBox1.SelectedIndex + 1) % MidiTriggerListBox1.Items.Count;
+            }
         }
     }
 }

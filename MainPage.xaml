@@ -2,27 +2,91 @@
     x:Class="MidiPageTurner.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:MidiPageTurner"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <StackPanel Padding="12">
-        <TextBlock Text="MIDI Input Device" />
-        <ListBox x:Name="MidiInListBox"/>
-        <Button x:Name="RefreshInputButton" Content="Refresh input devices" Click="RefreshInputButton_Click"/>
-        <TextBlock Text="MIDI Trigger" />
-        <ListBox x:Name="MidiTriggerListBox" SelectedIndex="0">
-            <ListBoxItem>Soft Pedal (Left)</ListBoxItem>
-            <ListBoxItem>Sostenuto Pedal (Middle)</ListBoxItem>
-        </ListBox>
-        <TextBlock Text="Page Turn Key" />
-        <ListBox x:Name="PageTurnKeyListBox" SelectedIndex="0">
-            <ListBoxItem>Right Arrow Key</ListBoxItem>
-            <ListBoxItem>Page Down</ListBoxItem>
-            <ListBoxItem>Space Bar</ListBoxItem>
-        </ListBox>
-        <Button x:Name="StartButton" Content="Start" Click="StartButton_Click"/>
+        <RelativePanel VerticalAlignment="Center">
+            <Rectangle Height="14" Width="14" RadiusX="7" RadiusY="7" Fill="{x:Bind IndicatorColor, Mode=OneWay}" HorizontalAlignment="Left" RelativePanel.AlignVerticalCenterWithPanel="True"/>
+            <TextBlock Text="MIDI Page Turner" FontSize="36" FontWeight="Light" RelativePanel.AlignHorizontalCenterWithPanel="True" Padding="0,0,0,4"/>
+        </RelativePanel>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xe772;" FontSize="14" VerticalAlignment="Center" Margin="0,2,4,0"/>
+            <TextBlock>MIDI Input Devices</TextBlock>
+        </StackPanel>
+        <ListBox x:Name="MidiInListBox" Height="120" SelectionChanged="MidiInListBox_SelectionChanged"/>
+        <Button x:Name="RefreshInputButton" Click="RefreshInputButton_Click" Margin="0,0,0,16" HorizontalAlignment="Stretch">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xe72c;" FontSize="14" VerticalAlignment="Center" Margin="0,2,6,0"/>
+                <TextBlock>Refresh Input Devices</TextBlock>
+            </StackPanel>
+        </Button>
+
+        <Grid Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xe945;" FontSize="14" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <TextBlock>MIDI Trigger 1</TextBlock>
+                </StackPanel>
+                <ListBox x:Name="MidiTriggerListBox1" SelectedIndex="0" SelectionChanged="MidiTriggerListBox1_SelectionChanged">
+                    <ListBoxItem>Soft Pedal (Left)</ListBoxItem>
+                    <ListBoxItem>Sostenuto Pedal (Middle)</ListBoxItem>
+                    <ListBoxItem>Sustain Pedal (Right)</ListBoxItem>
+                </ListBox>
+            </StackPanel>
+            <TextBlock Grid.Column="1" FontFamily="Segoe MDL2 Assets" Text="&#xe76c;" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
+            <StackPanel Grid.Column="2">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xeb9d;" FontSize="16" VerticalAlignment="Center" Margin="0,2,4,0"/>
+                    <TextBlock>Page Turn Forward Key</TextBlock>
+                </StackPanel>
+                <ListBox x:Name="PageTurnKeyListBox1" SelectedIndex="0">
+                    <ListBoxItem>Space Bar</ListBoxItem>
+                    <ListBoxItem>Right Arrow Key</ListBoxItem>
+                    <ListBoxItem>Page Down</ListBoxItem>
+                </ListBox>
+            </StackPanel>
+        </Grid>
+
+        <Grid Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xe945;" FontSize="14" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <TextBlock>MIDI Trigger 2</TextBlock>
+                </StackPanel>
+                <ListBox x:Name="MidiTriggerListBox2" SelectedIndex="1" SelectionChanged="MidiTriggerListBox2_SelectionChanged">
+                    <ListBoxItem>Soft Pedal (Left)</ListBoxItem>
+                    <ListBoxItem>Sostenuto Pedal (Middle)</ListBoxItem>
+                    <ListBoxItem>Sustain Pedal (Right)</ListBoxItem>
+                </ListBox>
+            </StackPanel>
+            <TextBlock Grid.Column="1" FontFamily="Segoe MDL2 Assets" Text="&#xe76b;" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
+            <StackPanel Grid.Column="2">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xeb9e;" FontSize="16" VerticalAlignment="Center" Margin="0,2,4,0"/>
+                    <TextBlock>Page Turn Backward Key</TextBlock>
+                </StackPanel>
+                <ListBox x:Name="PageTurnKeyListBox2" SelectedIndex="0">
+                    <ListBoxItem>Shift + Space Bar</ListBoxItem>
+                    <ListBoxItem>Left Arrow Key</ListBoxItem>
+                    <ListBoxItem>Page Up</ListBoxItem>
+                </ListBox>
+            </StackPanel>
+        </Grid>
+
+        <Button x:Name="StartButton" Content="Start" Click="StartButton_Click" HorizontalAlignment="Stretch" IsEnabled="False" Height="50" />
     </StackPanel>
 </Page>

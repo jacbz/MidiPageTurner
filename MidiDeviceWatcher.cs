@@ -57,22 +57,24 @@ namespace MidiPageTurner
             await _coreDispatcher.RunAsync(CoreDispatcherPriority.High, UpdateDevices);
         }
 
-        private async void UpdateDevices()
+        public async void UpdateDevices()
         {
-            // Get a list of all MIDI devices
             DeviceInformationCollection = await DeviceInformation.FindAllAsync(_deviceSelectorString);
 
             _deviceListBox.Items.Clear();
 
             if (!DeviceInformationCollection.Any())
             {
-                _deviceListBox.Items.Add("No MIDI devices found!");
+                _deviceListBox.Items.Add("No MIDI input devices found!");
+                _deviceListBox.IsEnabled = false;
+                return;
             }
 
-            foreach (var deviceInformation in DeviceInformationCollection)
+            foreach (var deviceInfo in DeviceInformationCollection)
             {
-                _deviceListBox.Items.Add(deviceInformation.Name);
+                _deviceListBox.Items.Add(deviceInfo.Name);
             }
+            _deviceListBox.IsEnabled = true;
         }
 
         public void StartWatcher()

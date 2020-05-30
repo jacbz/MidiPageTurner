@@ -50,8 +50,8 @@ namespace MidiPageTurner
                 rootFrame.Navigate(typeof(MainPage), e.Arguments);
             }
             // Ensure the current window is active
-            ApplicationView.GetForCurrentView().SetPreferredMinSize(new Size(300, 400));
-            ApplicationView.PreferredLaunchViewSize = new Size(300, 400);
+            ApplicationView.GetForCurrentView().SetPreferredMinSize(new Size(500, 644));
+            ApplicationView.PreferredLaunchViewSize = new Size(500, 644);
             ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
             Window.Current.Activate();
         }
