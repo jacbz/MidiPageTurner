@@ -29,10 +29,10 @@ namespace MidiPageTurner
         private readonly byte _triggerThreshold = 20;
         private readonly byte[] _midiTriggerOptions = { 67, 66, 64 };
         private readonly VirtualKey[][] _pageTurnKeyOptions1 =
-            {new[] {VirtualKey.Space}, new[] {VirtualKey.Right}, new[] {VirtualKey.PageDown}};
+            {new[] {VirtualKey.Right}, new[] {VirtualKey.PageDown}, new[] {VirtualKey.Space}, };
 
         private readonly VirtualKey[][] _pageTurnKeyOptions2 =
-            {new[] {VirtualKey.Shift, VirtualKey.Space}, new[] {VirtualKey.Left}, new[] {VirtualKey.PageUp}};
+            {new[] {VirtualKey.Left}, new[] {VirtualKey.PageUp}, new[] {VirtualKey.Shift, VirtualKey.Space}};
         private byte _currentMidiTrigger1;
         private byte _currentMidiTrigger2;
         private VirtualKey[] _currentPageTurnKey1;
@@ -130,7 +130,8 @@ namespace MidiPageTurner
             {
                 _inputInjector.InjectKeyboardInput(new[] { new InjectedInputKeyboardInfo
                 {
-                    VirtualKey = (ushort)key
+                    VirtualKey = (ushort)key,
+                    KeyOptions = InjectedInputKeyOptions.ExtendedKey
                 }});
             }
 
@@ -240,8 +241,7 @@ namespace MidiPageTurner
             var badgeElement = badgeXml.SelectSingleNode("/badge") as XmlElement;
             badgeElement.SetAttribute("value", badgeGlyphValue);
             var badge = new BadgeNotification(badgeXml);
-            var badgeUpdater = BadgeUpdateManager.CreateBadgeUpdaterForApplication();
-            badgeUpdater.Update(badge);
+            BadgeUpdateManager.CreateBadgeUpdaterForApplication().Update(badge);
         }
     }
 }
