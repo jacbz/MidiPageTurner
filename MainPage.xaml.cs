@@ -147,7 +147,7 @@ namespace MidiPageTurner
         }
         private async void StartButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(this._currentDevice))
+            if (!string.IsNullOrEmpty(_currentDevice))
             {
                 Stop();
             }
