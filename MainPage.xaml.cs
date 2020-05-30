@@ -60,23 +60,29 @@ namespace MidiPageTurner
                 (controlChangeMessage.Controller != _currentMidiTrigger1 &&
                 controlChangeMessage.Controller != _currentMidiTrigger2)) return;
 
-            var pageTurnKey = controlChangeMessage.Controller == _currentMidiTrigger1
+            var pageTurnKeys = controlChangeMessage.Controller == _currentMidiTrigger1
                 ? _currentPageTurnKey1
                 : _currentPageTurnKey2;
 
             _lastTriggerTime = DateTime.Now;
-            var info = pageTurnKey.Select(key => new InjectedInputKeyboardInfo
+
+            foreach (var key in pageTurnKeys)
             {
-                VirtualKey = (ushort) key
-            }).ToArray();
-            _inputInjector.InjectKeyboardInput(info);
+                _inputInjector.InjectKeyboardInput(new[] { new InjectedInputKeyboardInfo
+                {
+                    VirtualKey = (ushort)key
+                }});
+            }
 
             // release keys again
-            foreach (var injectedInputKeyboardInfo in info)
+            foreach (var key in pageTurnKeys.Reverse())
             {
-                injectedInputKeyboardInfo.KeyOptions = InjectedInputKeyOptions.KeyUp;
+                _inputInjector.InjectKeyboardInput(new[] { new InjectedInputKeyboardInfo
+                {
+                    VirtualKey = (ushort)key,
+                    KeyOptions = InjectedInputKeyOptions.KeyUp
+                }});
             }
-            _inputInjector.InjectKeyboardInput(info);
         }
 
         private async void StartButton_Click(object sender, RoutedEventArgs e)
