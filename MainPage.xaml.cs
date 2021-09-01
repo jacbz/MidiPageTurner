@@ -1,13 +1,23 @@
-﻿using System;
-using System.ComponentModel;
-using System.Diagnostics;
+﻿// Copyright 2021 Jacob Zhang. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
 using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Midi;
-using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using Windows.Data.Xml.Dom;
 using Windows.System;
 using Windows.UI;
@@ -29,7 +39,7 @@ namespace MidiPageTurner
         private readonly byte _triggerThreshold = 20;
         private readonly byte[] _midiTriggerOptions = { 67, 66, 64 };
         private readonly VirtualKey[][] _pageTurnKeyOptions1 =
-            {new[] {VirtualKey.Right}, new[] {VirtualKey.PageDown}, new[] {VirtualKey.Space}, };
+            {new[] {VirtualKey.Right}, new[] {VirtualKey.PageDown}, new[] {VirtualKey.Space}};
 
         private readonly VirtualKey[][] _pageTurnKeyOptions2 =
             {new[] {VirtualKey.Left}, new[] {VirtualKey.PageUp}, new[] {VirtualKey.Shift, VirtualKey.Space}};
@@ -38,8 +48,8 @@ namespace MidiPageTurner
         private VirtualKey[] _currentPageTurnKey1;
         private VirtualKey[] _currentPageTurnKey2;
 
-        private SolidColorBrush _activeBrush = new SolidColorBrush(Color.FromArgb(255, 39, 174, 96));
-        private SolidColorBrush _inactiveBrush = new SolidColorBrush(Color.FromArgb(255, 189, 195, 199));
+        private readonly SolidColorBrush _activeBrush = new SolidColorBrush(Color.FromArgb(255, 39, 174, 96));
+        private readonly SolidColorBrush _inactiveBrush = new SolidColorBrush(Color.FromArgb(255, 189, 195, 199));
         private DateTime _lastTriggerTime = DateTime.Now;
         private readonly TimeSpan _cooldown = TimeSpan.FromMilliseconds(750);
 

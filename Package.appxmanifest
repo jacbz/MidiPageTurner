@@ -8,15 +8,15 @@
   IgnorableNamespaces="uap mp rescap">
 
   <Identity
-    Name="dfc4dbc7-d31c-4a3e-8a56-9e62b7961209"
-    Publisher="CN=Jacob Zhang"
+    Name="1226JacobZhang.MIDIPageTurner"
+    Publisher="CN=A2923856-2932-41EC-9251-D970F23A4DBB"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="dfc4dbc7-d31c-4a3e-8a56-9e62b7961209" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="e87b45e7-d26a-49a3-a360-e7b22ef0ef3c" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>MidiPageTurner</DisplayName>
-    <PublisherDisplayName>jacob</PublisherDisplayName>
+    <DisplayName>MIDI Page Turner</DisplayName>
+    <PublisherDisplayName>Jacob Zhang</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
