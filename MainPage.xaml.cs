@@ -152,6 +152,7 @@ namespace MidiPageTurner
                 Stop();
             }
 
+            Log("Obtaining MIDI information on selected device");
             _currentMidiTrigger1 = _midiTriggerOptions[MidiTriggerListBox1.SelectedIndex];
             _currentMidiTrigger2 = _midiTriggerOptions[MidiTriggerListBox2.SelectedIndex];
             _currentPageTurnKey1 = _pageTurnKeyOptions1[PageTurnKeyListBox1.SelectedIndex];
@@ -195,7 +196,7 @@ namespace MidiPageTurner
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Log("Subscribing from current MIDI device");
+                Log("Unsubscribing from current MIDI device");
                 _currentDevice = null;
                 Indicator.Fill = _inactiveBrush;
                 SetBadge("unavailable");
