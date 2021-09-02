@@ -5,19 +5,19 @@
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap mp rescap">
+  IgnorableNamespaces="uap mp">
 
   <Identity
     Name="1226JacobZhang.MIDIPageTurner"
     Publisher="CN=A2923856-2932-41EC-9251-D970F23A4DBB"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="e87b45e7-d26a-49a3-a360-e7b22ef0ef3c" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="856cf8f6-8d82-4e10-aff4-c747ddce7599" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>MIDI Page Turner</DisplayName>
     <PublisherDisplayName>Jacob Zhang</PublisherDisplayName>
-    <Logo>Assets\StoreLogo.png</Logo>
+    <Logo>Assets\PackageLogo.png</Logo>
   </Properties>
 
   <Dependencies>
@@ -34,18 +34,16 @@
       EntryPoint="MidiPageTurner.App">
       <uap:VisualElements
         DisplayName="MIDI Page Turner"
-        Square150x150Logo="Assets\Square150x150Logo.png"
-        Square44x44Logo="Assets\Square44x44Logo.png"
         Description="MIDI Page Turner"
-        BackgroundColor="black">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square71x71Logo="Assets\SmallTile.png" Square310x310Logo="Assets\LargeTile.png">
+        BackgroundColor="black"  Square150x150Logo="Assets\MediumTile.png" Square44x44Logo="Assets\AppIcon.png">
+        <uap:DefaultTile   Square71x71Logo="Assets\SmallTile.png" Wide310x150Logo="Assets\WideTile.png" Square310x310Logo="Assets\LargeTile.png">
           <uap:ShowNameOnTiles>
             <uap:ShowOn Tile="square150x150Logo"/>
-            <uap:ShowOn Tile="wide310x150Logo"/>
             <uap:ShowOn Tile="square310x310Logo"/>
+            <uap:ShowOn Tile="wide310x150Logo"/>
           </uap:ShowNameOnTiles>
         </uap:DefaultTile >
-        <uap:SplashScreen Image="Assets\SplashScreen.png"  BackgroundColor="black"/>
+        <uap:SplashScreen BackgroundColor="black" Image="Assets\SplashScreen.png"/>
         <uap:InitialRotationPreference>
           <uap:Rotation Preference="portrait"/></uap:InitialRotationPreference>
       </uap:VisualElements>
@@ -54,5 +52,5 @@
 
   <Capabilities>
     <rescap:Capability Name="inputInjectionBrokered" />
-    </Capabilities>
+  </Capabilities>
 </Package>

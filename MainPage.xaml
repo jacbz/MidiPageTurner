@@ -99,7 +99,7 @@ limitations under the License.
 
         <Button x:Name="StartButton" Content="Start" Click="StartButton_Click" HorizontalAlignment="Stretch" IsEnabled="False" Height="50" Margin="0,0,0,24"/>
 
-        <ScrollViewer x:Name="LogScrollViewer" Height="80" BorderThickness="1" Padding="4">
+        <ScrollViewer x:Name="LogScrollViewer" Height="160" BorderThickness="1" Padding="4">
             <ScrollViewer.BorderBrush>
                 <SolidColorBrush Color="{ThemeResource SystemBaseLowColor}"/>
             </ScrollViewer.BorderBrush>
