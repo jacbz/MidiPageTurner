@@ -1,6 +1,9 @@
 # MIDI Page Turner
 
+<a href='//www.microsoft.com/store/apps/9P45KBXVTC9J?cid=storebadge&ocid=badge'><img src='https://developer.microsoft.com/store/badges/images/English_get-it-from-MS.png' alt='English badge' style='width: 150px;'/></a>
+
 Using MIDI Page Turner, you can turn the pages of your PDF reader on your Windows tablet by using the pedals of a digital piano.
+
 <p align="center">
   <img src="https://i.imgur.com/8KWpmEC.png" width="400px"/>
 </p>
